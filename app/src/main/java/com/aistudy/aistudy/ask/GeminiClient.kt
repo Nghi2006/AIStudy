@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets
 object GeminiClient {
 
     private const val TAG = "GeminiClient"
-    private const val MODEL = "gemini-3.5-flash"
+    private const val MODEL = "gemini-1.5-flash"
 
     fun ask(apiKey: String, prompt: String): String {
         Log.d(TAG, "request start model=$MODEL promptLength=${prompt.length}")
@@ -31,8 +31,12 @@ object GeminiClient {
         val content = JSONObject()
         content.put("parts", JSONArray().put(part))
 
+        val generationConfig = JSONObject()
+        generationConfig.put("response_mime_type", "application/json")
+
         val body = JSONObject()
         body.put("contents", JSONArray().put(content))
+        body.put("generationConfig", generationConfig)
 
         val bytes = body.toString().toByteArray(StandardCharsets.UTF_8)
         Log.d(TAG, "request body bytes=${bytes.size}")
