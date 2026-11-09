@@ -1,6 +1,8 @@
 package com.aistudy.aistudy.progress
 
+import com.aistudy.aistudy.auth.LoginActivity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +19,8 @@ import kotlin.math.roundToInt
 
 class ProgressFragment : Fragment() {
 
+    private lateinit var tvUserEmail: TextView
+    private lateinit var btnLogout: TextView
     private lateinit var tvXpTotal: TextView
     private lateinit var tvLevel: TextView
     private lateinit var progressXp: ProgressBar
@@ -66,6 +70,9 @@ class ProgressFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        tvUserEmail = view.findViewById(R.id.tv_user_email)
+        btnLogout = view.findViewById(R.id.btn_logout)
+
         // 1. Bind các View trên layout
         tvXpTotal = view.findViewById(R.id.tv_xp_total)
         tvLevel = view.findViewById(R.id.tv_level)
@@ -103,6 +110,10 @@ class ProgressFragment : Fragment() {
         val db = AppDatabase.getInstance(requireContext())
         profileDao = db.profileDao()
         qaDao = db.questionAnswerDao()
+
+        btnLogout.setOnClickListener {
+            logout()
+        }
     }
 
     override fun onResume() {
@@ -110,12 +121,44 @@ class ProgressFragment : Fragment() {
         loadProgress() // Load lại dữ liệu mỗi khi người dùng mở tab Progress[cite: 1]
     }
 
+    private fun logout() {
+        // Xóa session đăng nhập
+        requireContext()
+            .getSharedPreferences(
+                LoginActivity.PREFS_AUTH,
+                Context.MODE_PRIVATE
+            )
+            .edit()
+            .remove(LoginActivity.KEY_USER_ID)
+            .apply()
+
+        // Quay về màn hình Login
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+
+        intent.flags =
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+        startActivity(intent)
+    }
+
     private fun loadProgress() {
         val pDao = profileDao ?: return
         val qDao = qaDao ?: return
 
-        val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val userId = prefs.getLong("current_user_id", 1L)
+        val prefs = requireContext().getSharedPreferences(
+            LoginActivity.PREFS_AUTH,
+            Context.MODE_PRIVATE
+        )
+
+        val userId = prefs.getLong(LoginActivity.KEY_USER_ID, -1L)
+
+        if (userId == -1L) return
+
+        val db = AppDatabase.getInstance(requireContext())
+
+        val user = db.userDao().getById(userId)
+        tvUserEmail.text = user?.email ?: ""
 
         // Lấy thông tin Profile (XP, Streak, Level)
         val profile = pDao.getByUserId(userId)
