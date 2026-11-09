@@ -391,5 +391,11 @@
                     android:textSize="11sp" />
             </LinearLayout>
         </LinearLayout>
+<<<<<<< HEAD
     </LinearLayout>
 </ScrollView>
+=======
+
+    </LinearLayout>
+</ScrollView>
+>>>>>>> Develop

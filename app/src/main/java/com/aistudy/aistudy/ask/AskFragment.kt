@@ -94,7 +94,11 @@ class AskFragment : Fragment() {
 
         Log.d(
             TAG, "submit start questionLength=${question.length}" +
+<<<<<<< HEAD
                 " apiKey=${maskKey(BuildConfig.GEMINI_API_KEY)}"
+=======
+                    " apiKey=${maskKey(BuildConfig.GEMINI_API_KEY)}"
+>>>>>>> Develop
         )
         setLoading(true)
 
@@ -136,8 +140,13 @@ class AskFragment : Fragment() {
                 val finalAnswer = json.getString("finalAnswer")
                 Log.d(
                     TAG, "parsed subject=$subject" +
+<<<<<<< HEAD
                         " steps=${stepsArray.length()}" +
                         " finalAnswerLength=${finalAnswer.length}"
+=======
+                            " steps=${stepsArray.length()}" +
+                            " finalAnswerLength=${finalAnswer.length}"
+>>>>>>> Develop
                 )
 
                 val qa = QuestionAnswer()
@@ -200,6 +209,7 @@ class AskFragment : Fragment() {
         }
 
         return "You are AI Study Mentor, a study tutor in English for a $levelText.\n" +
+<<<<<<< HEAD
             styleText + "\n" +
             "Always answer in English. Put math formulas in the \"expr\" field of the matching step.\n" +
             "Classify the subject correctly (math/science/code/history/language/other).\n\n" +
@@ -210,6 +220,18 @@ class AskFragment : Fragment() {
             "  \"finalAnswer\": \"string\"\n" +
             "}\n\n" +
             "Question: " + question
+=======
+                styleText + "\n" +
+                "Always answer in English. Put math formulas in the \"expr\" field of the matching step.\n" +
+                "Classify the subject correctly (math/science/code/history/language/other).\n\n" +
+                "Return ONLY valid JSON (no markdown) with this structure:\n" +
+                "{\n" +
+                "  \"subject\": \"math|science|code|history|language|other\",\n" +
+                "  \"steps\": [{\"title\": \"optional\", \"body\": \"required\", \"expr\": \"optional\"}],\n" +
+                "  \"finalAnswer\": \"string\"\n" +
+                "}\n\n" +
+                "Question: " + question
+>>>>>>> Develop
     }
 
     private fun extractJson(raw: String): String {

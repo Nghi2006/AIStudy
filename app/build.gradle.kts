@@ -14,9 +14,7 @@ val geminiApiKey = localProperties.getProperty("GEMINI_API_KEY", "")
 
 android {
     namespace = "com.aistudy.aistudy"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.aistudy.aistudy"
@@ -35,9 +33,11 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -47,15 +47,24 @@ android {
 }
 
 dependencies {
+    // UI & Core Dependencies
+    implementation(libs.core.ktx)
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
     implementation(libs.material)
     implementation(libs.fragment)
+    implementation(libs.recyclerview)
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
+<<<<<<< HEAD
     implementation(libs.core.ktx)
+=======
+
+
+    // Testing Dependencies
+>>>>>>> Develop
     testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.junit)
 }

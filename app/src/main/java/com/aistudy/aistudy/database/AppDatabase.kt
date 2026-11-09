@@ -14,6 +14,7 @@ import androidx.room.RoomDatabase
     version = 3,
     exportSchema = false
 )
+
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
@@ -22,6 +23,10 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun questionAnswerDao(): QuestionAnswerDao
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> Develop
     companion object {
 
         @Volatile
