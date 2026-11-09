@@ -1,3 +1,30 @@
 <resources>
-    <string name="app_name">AI Study</string>
+    <string name="app_name">AIStudy</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ask_title">Ask AI Mentor</string>
+    <string name="ask_hint">Type your question (Math, Science, Code, History, Language…)</string>
+    <string name="ask_send">Send</string>
+    <string name="ask_sending">AI is thinking…</string>
+    <string name="ask_empty">Please enter a question.</string>
+    <string name="ask_no_api_key">GEMINI_API_KEY not set in local.properties</string>
+    <string name="ask_error">Could not get AI response. Try again.</string>
+    <string name="ask_suggestions_title">Suggestions</string>
+    <string name="ask_suggestion_1">Solve quadratic: x² - 5x + 6 = 0</string>
+    <string name="ask_suggestion_2">How is a eukaryotic cell different from a prokaryotic cell?</string>
+    <string name="ask_suggestion_3">Difference between let and const in JavaScript?</string>
+    <string name="ask_suggestion_4">Causes of the August Revolution 1945?</string>
+
+    <string name="answer_back">Back</string>
+    <string name="answer_question_label">Question</string>
+    <string name="answer_steps_label">Step-by-step solution</string>
+    <string name="answer_final_label">Final answer</string>
+    <string name="answer_not_found">Question not found.</string>
+
+    <string name="subject_math">Math</string>
+    <string name="subject_science">Science</string>
+    <string name="subject_code">Code</string>
+    <string name="subject_history">History</string>
+    <string name="subject_language">Language</string>
+    <string name="subject_other">Other</string>
+
 </resources>
