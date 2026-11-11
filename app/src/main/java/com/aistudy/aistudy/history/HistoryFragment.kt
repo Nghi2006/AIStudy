@@ -27,6 +27,7 @@ class HistoryFragment : Fragment() {
     private lateinit var chipScience: TextView
     private lateinit var chipCode: TextView
     private lateinit var chipHistory: TextView
+    private lateinit var chipLanguage: TextView
     private lateinit var chipStarred: TextView
     private lateinit var rvHistory: RecyclerView
     private lateinit var tvEmpty: TextView
@@ -57,6 +58,7 @@ class HistoryFragment : Fragment() {
         chipScience = view.findViewById(R.id.chip_science)
         chipCode = view.findViewById(R.id.chip_code)
         chipHistory = view.findViewById(R.id.chip_history)
+        chipLanguage = view.findViewById(R.id.chip_language)
         chipStarred = view.findViewById(R.id.chip_starred)
         rvHistory = view.findViewById(R.id.rv_history)
         tvEmpty = view.findViewById(R.id.tv_empty)
@@ -65,7 +67,7 @@ class HistoryFragment : Fragment() {
         val db = AppDatabase.getInstance(requireContext())
         qaDao = db.questionAnswerDao()
 
-        // 3. Khởi tạo Adapter và gán cho RecyclerView[cite: 1]
+        // 3. Khởi tạo Adapter và gán cho RecyclerView
         adapter = HistoryAdapter(
             object : HistoryAdapter.Listener {
                 override fun onItemClick(qa: QuestionAnswer) {
@@ -108,7 +110,6 @@ class HistoryFragment : Fragment() {
     private fun loadHistory() {
         val dao = qaDao ?: return
         val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        // Sửa lại thành getLong vì userId trong DB là kiểu Long
         val userId = prefs.getLong("current_user_id", 1L)
 
         val list = dao.getAllByUserId(userId)
@@ -118,7 +119,8 @@ class HistoryFragment : Fragment() {
     }
 
     private fun setupChips() {
-        val chips = listOf(chipAll, chipMath, chipScience, chipCode, chipHistory, chipStarred)
+        // Đã thêm chipLanguage vào danh sách chips
+        val chips = listOf(chipAll, chipMath, chipScience, chipCode, chipHistory, chipLanguage, chipStarred)
 
         chipAll.setOnClickListener {
             subjectFilter = "all"
@@ -148,6 +150,12 @@ class HistoryFragment : Fragment() {
             subjectFilter = "history"
             starredOnly = false
             styleChip(chipHistory, chips)
+            applyFilter()
+        }
+        chipLanguage.setOnClickListener {
+            subjectFilter = "language"
+            starredOnly = false
+            styleChip(chipLanguage, chips)
             applyFilter()
         }
         chipStarred.setOnClickListener {
@@ -196,6 +204,7 @@ class HistoryFragment : Fragment() {
             "science" -> getString(R.string.subject_science)
             "code" -> getString(R.string.subject_code)
             "history" -> getString(R.string.subject_history)
+            "language" -> getString(R.string.subject_language) // Đã bổ sung môn Language
             else -> subject ?: "General"
         }
     }
