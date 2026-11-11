@@ -1,6 +1,8 @@
 package com.aistudy.aistudy.progress
 
+import com.aistudy.aistudy.auth.LoginActivity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +19,8 @@ import kotlin.math.roundToInt
 
 class ProgressFragment : Fragment() {
 
+    private lateinit var tvUserEmail: TextView
+    private lateinit var btnLogout: TextView
     private lateinit var tvXpTotal: TextView
     private lateinit var tvLevel: TextView
     private lateinit var progressXp: ProgressBar
@@ -43,6 +47,10 @@ class ProgressFragment : Fragment() {
     private lateinit var tvCountHistory: TextView
     private lateinit var barHistory: ProgressBar
 
+    private lateinit var rowLanguage: LinearLayout
+    private lateinit var tvCountLanguage: TextView
+    private lateinit var barLanguage: ProgressBar
+
     private lateinit var badgeStarter: LinearLayout
     private lateinit var badgeWeek: LinearLayout
     private lateinit var badgeMath: LinearLayout
@@ -65,6 +73,9 @@ class ProgressFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        tvUserEmail = view.findViewById(R.id.tv_user_email)
+        btnLogout = view.findViewById(R.id.btn_logout)
 
         // 1. Bind các View trên layout
         tvXpTotal = view.findViewById(R.id.tv_xp_total)
@@ -94,6 +105,10 @@ class ProgressFragment : Fragment() {
         tvCountHistory = view.findViewById(R.id.tv_count_history)
         barHistory = view.findViewById(R.id.bar_history)
 
+        rowLanguage = view.findViewById(R.id.row_language)
+        tvCountLanguage = view.findViewById(R.id.tv_count_language)
+        barLanguage = view.findViewById(R.id.bar_language)
+
         badgeStarter = view.findViewById(R.id.badge_starter)
         badgeWeek = view.findViewById(R.id.badge_week)
         badgeMath = view.findViewById(R.id.badge_math)
@@ -103,6 +118,10 @@ class ProgressFragment : Fragment() {
         val db = AppDatabase.getInstance(requireContext())
         profileDao = db.profileDao()
         qaDao = db.questionAnswerDao()
+
+        btnLogout.setOnClickListener {
+            logout()
+        }
     }
 
     override fun onResume() {
@@ -110,12 +129,44 @@ class ProgressFragment : Fragment() {
         loadProgress() // Load lại dữ liệu mỗi khi người dùng mở tab Progress[cite: 1]
     }
 
+    private fun logout() {
+        // Xóa session đăng nhập
+        requireContext()
+            .getSharedPreferences(
+                LoginActivity.PREFS_AUTH,
+                Context.MODE_PRIVATE
+            )
+            .edit()
+            .remove(LoginActivity.KEY_USER_ID)
+            .apply()
+
+        // Quay về màn hình Login
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+
+        intent.flags =
+            Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+        startActivity(intent)
+    }
+
     private fun loadProgress() {
         val pDao = profileDao ?: return
         val qDao = qaDao ?: return
 
-        val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val userId = prefs.getLong("current_user_id", 1L)
+        val prefs = requireContext().getSharedPreferences(
+            LoginActivity.PREFS_AUTH,
+            Context.MODE_PRIVATE
+        )
+
+        val userId = prefs.getLong(LoginActivity.KEY_USER_ID, -1L)
+
+        if (userId == -1L) return
+
+        val db = AppDatabase.getInstance(requireContext())
+
+        val user = db.userDao().getById(userId)
+        tvUserEmail.text = user?.email ?: ""
 
         // Lấy thông tin Profile (XP, Streak, Level)
         val profile = pDao.getByUserId(userId)
@@ -126,6 +177,7 @@ class ProgressFragment : Fragment() {
         // Bind XP card
         tvXpTotal.text = getString(R.string.progress_xp_percent, xp).replace("%", " XP")
         tvLevel.text = "Level ${profile?.level ?: 1} • Scholar"
+
         val xpPercent = minOf(100, ((xp * 100f) / XP_MAX).roundToInt())
         progressXp.progress = xpPercent
         tvXpPercent.text = getString(R.string.progress_xp_percent, xpPercent)
@@ -145,20 +197,18 @@ class ProgressFragment : Fragment() {
         val countScience = qDao.countBySubject(userId, "science")
         val countCode = qDao.countBySubject(userId, "code")
         val countHistory = qDao.countBySubject(userId, "history")
+        val countLanguage = qDao.countBySubject(userId, "language")
 
-        val subjectTotal = countMath + countScience + countCode + countHistory
+        val subjectTotal = countMath + countScience + countCode + countHistory + countLanguage
         val barDenom = if (subjectTotal > 0) subjectTotal else 1
-
-        if (subjectTotal > 0) {
-            tvSubjectsEmpty.visibility = View.GONE
-        } else {
-            tvSubjectsEmpty.visibility = View.VISIBLE
-        }
 
         bindSubjectRow(rowMath, tvCountMath, barMath, countMath, barDenom)
         bindSubjectRow(rowScience, tvCountScience, barScience, countScience, barDenom)
         bindSubjectRow(rowCode, tvCountCode, barCode, countCode, barDenom)
         bindSubjectRow(rowHistory, tvCountHistory, barHistory, countHistory, barDenom)
+        bindSubjectRow(rowLanguage, tvCountLanguage, barLanguage, countLanguage, barDenom)
+
+        tvSubjectsEmpty.visibility = if (subjectTotal == 0) View.VISIBLE else View.GONE
 
         // Kiểm tra điều kiện mở khóa Badges
         setBadge(badgeStarter, totalQuestions >= 1)

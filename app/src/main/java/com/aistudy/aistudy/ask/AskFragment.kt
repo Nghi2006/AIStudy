@@ -132,13 +132,20 @@ class AskFragment : Fragment() {
                     subject = "other"
                 }
 
+                var difficulty = json.optString("difficulty", "medium")
+                if (!isValidDifficulty(difficulty)) {
+                    difficulty = "medium"
+                }
+
                 val stepsArray = json.getJSONArray("steps")
+
                 val finalAnswer = json.getString("finalAnswer")
                 Log.d(
-                    TAG, "parsed subject=$subject" +
+                    TAG, "parsed subject=$subject difficulty=$difficulty" +
                             " steps=${stepsArray.length()}" +
                             " finalAnswerLength=${finalAnswer.length}"
                 )
+
 
                 val qa = QuestionAnswer()
                 qa.userId = userId
@@ -148,6 +155,10 @@ class AskFragment : Fragment() {
                 qa.finalAnswer = finalAnswer
                 qa.starred = false
                 qa.createdAt = System.currentTimeMillis()
+                qa.difficulty = difficulty
+                qa.extrasJson = null
+                qa.reviewedAt = 0
+
 
                 val qaId = qaDao.insert(qa)
                 Log.d(TAG, "saved qaId=$qaId")
@@ -202,14 +213,17 @@ class AskFragment : Fragment() {
         return "You are AI Study Mentor, a study tutor in English for a $levelText.\n" +
                 styleText + "\n" +
                 "Always answer in English. Put math formulas in the \"expr\" field of the matching step.\n" +
-                "Classify the subject correctly (math/science/code/history/language/other).\n\n" +
+                "Classify the subject correctly (math/science/code/history/language/other).\n" +
+                "Also rate difficulty as easy, medium, or hard for this student.\n\n" +
                 "Return ONLY valid JSON (no markdown) with this structure:\n" +
                 "{\n" +
                 "  \"subject\": \"math|science|code|history|language|other\",\n" +
+                "  \"difficulty\": \"easy|medium|hard\",\n" +
                 "  \"steps\": [{\"title\": \"optional\", \"body\": \"required\", \"expr\": \"optional\"}],\n" +
                 "  \"finalAnswer\": \"string\"\n" +
                 "}\n\n" +
                 "Question: " + question
+
     }
 
     private fun extractJson(raw: String): String {
@@ -236,5 +250,10 @@ class AskFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         executor?.shutdown()
+    }
+    private fun isValidDifficulty(difficulty: String): Boolean {
+        return difficulty == "easy" ||
+                difficulty == "medium" ||
+                difficulty == "hard"
     }
 }
