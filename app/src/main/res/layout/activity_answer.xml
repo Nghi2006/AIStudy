@@ -32,6 +32,7 @@
             android:textColor="@color/auth_brand"
             android:textSize="12sp"
             android:textStyle="bold" />
+
         <TextView
             android:id="@+id/tv_difficulty"
             android:layout_width="wrap_content"
@@ -77,10 +78,37 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="16dp"
                 android:textColor="@color/auth_foreground"
                 android:textSize="16sp"
                 android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layout_answer_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/answer_image_label"
+                    android:textAllCaps="true"
+                    android:textColor="@color/auth_muted_foreground"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/img_answer"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@string/answer_image_label"
+                    android:scaleType="centerCrop" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
@@ -127,6 +155,7 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </LinearLayout>
+
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
