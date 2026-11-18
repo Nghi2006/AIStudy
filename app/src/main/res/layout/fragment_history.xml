@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -125,6 +126,16 @@
                 android:textSize="12sp" />
         </LinearLayout>
     </HorizontalScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_practice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/quiz_practice"
+        android:visibility="gone"
+        app:backgroundTint="@color/auth_brand"
+        app:cornerRadius="12dp" />
 
     <!-- Khung chứa RecyclerView và TextView thông báo rỗng -->
     <FrameLayout
