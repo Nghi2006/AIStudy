@@ -57,13 +57,9 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
-<<<<<<< HEAD
-    implementation(libs.core.ktx)
-=======
 
 
     // Testing Dependencies
->>>>>>> Develop
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.espresso.core)
