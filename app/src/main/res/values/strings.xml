@@ -14,11 +14,38 @@
     <string name="ask_suggestion_3">Difference between let and const in JavaScript?</string>
     <string name="ask_suggestion_4">Causes of the August Revolution 1945?</string>
 
+    <string name="ask_camera">Camera</string>
+    <string name="ask_gallery">Gallery</string>
+    <string name="ask_remove_image">Remove</string>
+    <string name="ask_image_preview">Selected question image</string>
+    <string name="ask_empty_both">Enter a question or attach an image.</string>
+    <string name="ask_image_default_question">Please solve the problem shown in this image.</string>
+    <string name="ask_permission_camera">Camera permission is required to take a photo.</string>
+    <string name="ask_permission_gallery">Photo access is required to pick an image.</string>
+    <string name="ask_image_error">Could not load the selected image.</string>
+    <string name="answer_image_label">Attached image</string>
+
     <string name="answer_back">Back</string>
     <string name="answer_question_label">Question</string>
     <string name="answer_steps_label">Step-by-step solution</string>
     <string name="answer_final_label">Final answer</string>
     <string name="answer_not_found">Question not found.</string>
+
+    <string name="answer_difficulty_easy">Easy</string>
+    <string name="answer_difficulty_medium">Medium</string>
+    <string name="answer_difficulty_hard">Hard</string>
+    <string name="answer_action_simplify">Simplify</string>
+    <string name="answer_action_alternative">Alternative</string>
+    <string name="answer_action_concepts">Concepts</string>
+    <string name="answer_action_mistakes">Mistakes</string>
+    <string name="answer_action_followups">Follow-ups</string>
+    <string name="answer_extras_loading">Generating learning tips…</string>
+    <string name="answer_extras_error">Could not generate tips. Try again.</string>
+    <string name="answer_extras_empty">Tap an action above to get learning support.</string>
+    <string name="answer_mark_reviewed">Mark reviewed (+10 XP)</string>
+    <string name="answer_reviewed">Reviewed ✓</string>
+    <string name="answer_review_xp_toast">+10 XP for reviewing</string>
+
 
     <string name="subject_math">Math</string>
     <string name="subject_science">Science</string>
