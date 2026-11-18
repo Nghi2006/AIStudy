@@ -10,16 +10,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aistudy.aistudy.R
 import com.aistudy.aistudy.answer.AnswerActivity
+import com.aistudy.aistudy.auth.LoginActivity
 import com.aistudy.aistudy.database.AppDatabase
 import com.aistudy.aistudy.database.QuestionAnswer
 import com.aistudy.aistudy.database.QuestionAnswerDao
+import com.aistudy.aistudy.quiz.QuizActivity
+import com.google.android.material.button.MaterialButton
 
 class HistoryFragment : Fragment() {
+
+    companion object {
+        private const val MIN_PRACTICE_QA = 2
+    }
 
     private lateinit var etSearch: EditText
     private lateinit var chipAll: TextView
@@ -29,11 +38,13 @@ class HistoryFragment : Fragment() {
     private lateinit var chipHistory: TextView
     private lateinit var chipLanguage: TextView
     private lateinit var chipStarred: TextView
+    private lateinit var btnPractice: MaterialButton
     private lateinit var rvHistory: RecyclerView
     private lateinit var tvEmpty: TextView
 
     private lateinit var adapter: HistoryAdapter
     private var qaDao: QuestionAnswerDao? = null
+    private var userId = -1L
 
     private val allItems = mutableListOf<QuestionAnswer>()
     private var subjectFilter = "all"
@@ -50,8 +61,6 @@ class HistoryFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // 1. Bind các View trên layout
         etSearch = view.findViewById(R.id.et_search)
         chipAll = view.findViewById(R.id.chip_all)
         chipMath = view.findViewById(R.id.chip_math)
@@ -60,14 +69,10 @@ class HistoryFragment : Fragment() {
         chipHistory = view.findViewById(R.id.chip_history)
         chipLanguage = view.findViewById(R.id.chip_language)
         chipStarred = view.findViewById(R.id.chip_starred)
+        btnPractice = view.findViewById(R.id.btn_practice)
         rvHistory = view.findViewById(R.id.rv_history)
         tvEmpty = view.findViewById(R.id.tv_empty)
 
-        // 2. Khởi tạo Room DAO
-        val db = AppDatabase.getInstance(requireContext())
-        qaDao = db.questionAnswerDao()
-
-        // 3. Khởi tạo Adapter và gán cho RecyclerView
         adapter = HistoryAdapter(
             object : HistoryAdapter.Listener {
                 override fun onItemClick(qa: QuestionAnswer) {
@@ -88,94 +93,104 @@ class HistoryFragment : Fragment() {
         rvHistory.layoutManager = LinearLayoutManager(requireContext())
         rvHistory.adapter = adapter
 
-        // 4. Cài đặt sự kiện bấm các chip lọc
-        setupChips()
-
-        // 5. Lắng nghe ô tìm kiếm (Search)
-        etSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                query = s?.toString() ?: ""
-                applyFilter()
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loadHistory() // Load lại dữ liệu mỗi khi quay lại tab[cite: 1]
-    }
-
-    private fun loadHistory() {
-        val dao = qaDao ?: return
-        val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        val userId = prefs.getLong("current_user_id", 1L)
-
-        val list = dao.getAllByUserId(userId)
-        allItems.clear()
-        allItems.addAll(list)
-        applyFilter()
-    }
-
-    private fun setupChips() {
-        // Đã thêm chipLanguage vào danh sách chips
-        val chips = listOf(chipAll, chipMath, chipScience, chipCode, chipHistory, chipLanguage, chipStarred)
-
         chipAll.setOnClickListener {
             subjectFilter = "all"
             starredOnly = false
-            styleChip(chipAll, chips)
+            refreshChips()
             applyFilter()
         }
         chipMath.setOnClickListener {
             subjectFilter = "math"
             starredOnly = false
-            styleChip(chipMath, chips)
+            refreshChips()
             applyFilter()
         }
         chipScience.setOnClickListener {
             subjectFilter = "science"
             starredOnly = false
-            styleChip(chipScience, chips)
+            refreshChips()
             applyFilter()
         }
         chipCode.setOnClickListener {
             subjectFilter = "code"
             starredOnly = false
-            styleChip(chipCode, chips)
+            refreshChips()
             applyFilter()
         }
         chipHistory.setOnClickListener {
             subjectFilter = "history"
             starredOnly = false
-            styleChip(chipHistory, chips)
+            refreshChips()
             applyFilter()
         }
         chipLanguage.setOnClickListener {
             subjectFilter = "language"
             starredOnly = false
-            styleChip(chipLanguage, chips)
+            refreshChips()
             applyFilter()
         }
         chipStarred.setOnClickListener {
-            starredOnly = true
             subjectFilter = "all"
-            styleChip(chipStarred, chips)
+            starredOnly = true
+            refreshChips()
             applyFilter()
         }
+        btnPractice.setOnClickListener {
+            if (subjectFilter == "all" || starredOnly) {
+                return@setOnClickListener
+            }
+            val dao = qaDao
+            if (dao == null || userId == -1L) {
+                return@setOnClickListener
+            }
+            val count = dao.countBySubject(userId, subjectFilter)
+            if (count < MIN_PRACTICE_QA) {
+                Toast.makeText(requireContext(), R.string.quiz_need_more, Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+            val intent = Intent(requireContext(), QuizActivity::class.java)
+            intent.putExtra(QuizActivity.EXTRA_SUBJECT, subjectFilter)
+            startActivity(intent)
+        }
+
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                query = s?.toString()?.trim() ?: ""
+                applyFilter()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
+
+        refreshChips()
     }
 
-    private fun styleChip(active: TextView, allChips: List<TextView>) {
-        for (chip in allChips) {
-            if (chip == active) {
-                chip.setBackgroundResource(R.drawable.bg_history_chip_active)
-                chip.setTextColor(requireContext().getColor(R.color.auth_primary_foreground))
-            } else {
-                chip.setBackgroundResource(R.drawable.bg_history_chip)
-                chip.setTextColor(requireContext().getColor(R.color.auth_foreground))
-            }
+    override fun onResume() {
+        super.onResume()
+        loadHistory()
+    }
+
+    private fun loadHistory() {
+        if (context == null) {
+            return
         }
+
+        userId = requireContext()
+            .getSharedPreferences(LoginActivity.PREFS_AUTH, Context.MODE_PRIVATE)
+            .getLong(LoginActivity.KEY_USER_ID, -1L)
+        if (userId == -1L) {
+            return
+        }
+
+        val dao = AppDatabase.getInstance(requireContext()).questionAnswerDao()
+        qaDao = dao
+        allItems.clear()
+        allItems.addAll(dao.getAllByUserId(userId))
+        applyFilter()
     }
 
     private fun applyFilter() {
@@ -196,16 +211,47 @@ class HistoryFragment : Fragment() {
         val empty = filtered.isEmpty()
         tvEmpty.visibility = if (empty) View.VISIBLE else View.GONE
         rvHistory.visibility = if (empty) View.GONE else View.VISIBLE
+        refreshPracticeButton()
+    }
+
+    private fun refreshPracticeButton() {
+        val show = !starredOnly && subjectFilter != "all"
+        if (!show) {
+            btnPractice.visibility = View.GONE
+            return
+        }
+        btnPractice.visibility = View.VISIBLE
+        btnPractice.text = getString(R.string.quiz_practice_on, subjectLabel(subjectFilter))
+    }
+
+    private fun refreshChips() {
+        styleChip(chipAll, subjectFilter == "all" && !starredOnly)
+        styleChip(chipMath, subjectFilter == "math" && !starredOnly)
+        styleChip(chipScience, subjectFilter == "science" && !starredOnly)
+        styleChip(chipCode, subjectFilter == "code" && !starredOnly)
+        styleChip(chipHistory, subjectFilter == "history" && !starredOnly)
+        styleChip(chipLanguage, subjectFilter == "language" && !starredOnly)
+        styleChip(chipStarred, starredOnly)
+    }
+
+    private fun styleChip(chip: TextView, active: Boolean) {
+        if (active) {
+            chip.setBackgroundResource(R.drawable.bg_history_chip_active)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.auth_primary_foreground))
+        } else {
+            chip.setBackgroundResource(R.drawable.bg_history_chip)
+            chip.setTextColor(ContextCompat.getColor(requireContext(), R.color.auth_foreground))
+        }
     }
 
     private fun subjectLabel(subject: String?): String {
-        return when (subject?.lowercase()) {
+        return when (subject) {
             "math" -> getString(R.string.subject_math)
             "science" -> getString(R.string.subject_science)
             "code" -> getString(R.string.subject_code)
             "history" -> getString(R.string.subject_history)
-            "language" -> getString(R.string.subject_language) // Đã bổ sung môn Language
-            else -> subject ?: "General"
+            "language" -> getString(R.string.subject_language)
+            else -> getString(R.string.subject_other)
         }
     }
 
