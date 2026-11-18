@@ -1,11 +1,14 @@
+
 package com.aistudy.aistudy.answer
 
+import android.graphics.BitmapFactory
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -25,6 +28,7 @@ import com.aistudy.aistudy.database.QuestionAnswerDao
 import com.google.android.material.button.MaterialButton
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
 import java.util.Calendar
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -73,6 +77,7 @@ class AnswerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_answer)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -120,6 +125,18 @@ class AnswerActivity : AppCompatActivity() {
         tvQuestion.text = item.question
         tvFinalAnswer.text = item.finalAnswer
         tvDifficulty.text = difficultyLabel(item.difficulty)
+
+        // Display the attached image, if one was saved with this question.
+        val layoutAnswerImage = findViewById<LinearLayout>(R.id.layout_answer_image)
+        val imgAnswer = findViewById<ImageView>(R.id.img_answer)
+        val imagePath = item.imagePath
+        if (!imagePath.isNullOrEmpty()) {
+            val imageFile = File(imagePath)
+            if (imageFile.exists()) {
+                imgAnswer.setImageBitmap(BitmapFactory.decodeFile(imageFile.absolutePath))
+                layoutAnswerImage.visibility = View.VISIBLE
+            }
+        }
 
         try {
             val steps = JSONArray(item.steps)
@@ -182,7 +199,10 @@ class AnswerActivity : AppCompatActivity() {
         val now = System.currentTimeMillis()
         val doneToday = item.reviewedAt != 0L && isSameDay(item.reviewedAt, now)
         btnMarkReviewed.isEnabled = !doneToday
-        btnMarkReviewed.setText(if (doneToday) R.string.answer_reviewed else R.string.answer_mark_reviewed)
+        btnMarkReviewed.setText(
+            if (doneToday) R.string.answer_reviewed
+            else R.string.answer_mark_reviewed
+        )
     }
 
     private fun onExtraAction(key: String) {
