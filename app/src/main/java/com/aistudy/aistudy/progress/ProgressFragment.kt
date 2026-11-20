@@ -27,6 +27,8 @@ import com.aistudy.aistudy.xp.FriendSeeder
 import com.aistudy.aistudy.xp.UnlockCatalog
 import com.aistudy.aistudy.xp.XpRules
 import kotlin.math.roundToInt
+import com.aistudy.aistudy.notify.NotificationScheduler
+
 
 class ProgressFragment : Fragment() {
 
@@ -151,6 +153,12 @@ class ProgressFragment : Fragment() {
         badgeScholar = view.findViewById(R.id.badge_scholar)
 
         btnLogout.setOnClickListener { logout() }
+        view.findViewById<View>(R.id.tv_progress_title).setOnLongClickListener {
+            NotificationScheduler.enqueueNow(requireContext())
+            Toast.makeText(requireContext(), R.string.progress_force_notify, Toast.LENGTH_SHORT).show()
+            true
+        }
+
         cardReviewSuggest.setOnClickListener {
             reviewSubject?.let { openPractice(it) }
         }
