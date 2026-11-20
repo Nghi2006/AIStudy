@@ -1,5 +1,8 @@
 package com.aistudy.aistudy
 
+import android.view.View
+import com.aistudy.aistudy.xp.FriendSeeder
+import com.aistudy.aistudy.xp.UnlockCatalog
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -37,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         }
+        FriendSeeder.ensureSeeded(AppDatabase.getInstance(this).friendDao(), userId)
 
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
@@ -45,6 +49,12 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        if (profile != null) {
+            findViewById<View>(R.id.main).setBackgroundResource(
+                UnlockCatalog.backgroundColorRes(UnlockCatalog.normalizeThemeId(profile.themeId))
+            )
+        }
+
 
         val bottomNav: BottomNavigationView = findViewById(R.id.bottom_nav)
         bottomNav.setOnItemSelectedListener { item ->

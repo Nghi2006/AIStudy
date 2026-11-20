@@ -29,6 +29,7 @@ import com.aistudy.aistudy.answer.AnswerActivity
 import com.aistudy.aistudy.auth.LoginActivity
 import com.aistudy.aistudy.database.AppDatabase
 import com.aistudy.aistudy.database.QuestionAnswer
+import com.aistudy.aistudy.xp.XpRules
 import com.google.android.material.button.MaterialButton
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
@@ -57,8 +58,6 @@ class AskFragment : Fragment() {
                 }
             }
         }
-
-        private const val XP_PER_QUESTION = 50
 
         private fun maskKey(key: String?): String {
             if (key == null || key.length < 8) return "(invalid)"
@@ -399,8 +398,8 @@ class AskFragment : Fragment() {
                 Log.d(TAG, "saved qaId=$qaId imagePath=$imagePath")
 
                 if (profile != null) {
-                    profile.xp += XP_PER_QUESTION
-                    profileDao.update(profile)
+                    XpRules.recordDailyActivity(profile, profileDao)
+                    XpRules.addXp(profile, profileDao, XpRules.ASK)
                     Log.d(TAG, "xp updated to ${profile.xp}")
                 }
 

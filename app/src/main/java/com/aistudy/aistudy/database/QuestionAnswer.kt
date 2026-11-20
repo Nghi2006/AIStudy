@@ -19,5 +19,6 @@ class QuestionAnswer {
     var difficulty: String? = null
     var extrasJson: String? = null
     var reviewedAt: Long = 0
+    var reviewedSeconds: Int = 0
     var imagePath: String? = null
 }
