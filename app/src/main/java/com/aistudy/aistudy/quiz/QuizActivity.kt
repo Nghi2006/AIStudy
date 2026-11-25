@@ -134,11 +134,6 @@ class QuizActivity : AppCompatActivity() {
 
     private fun startGenerate() {
         val sources = qaDao.getRecentByUserIdAndSubject(userId, subject, RECENT_LIMIT)
-        if (sources.size < MIN_SOURCE_QA) {
-            Toast.makeText(this, R.string.quiz_need_more, Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
 
         showLoading()
         val prompt = buildQuizPrompt(sources)

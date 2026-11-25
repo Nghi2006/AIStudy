@@ -105,6 +105,10 @@ object GeminiClient {
     }
 
     private fun generateFallbackResponse(prompt: String): String {
+        if (prompt.contains("\"items\":") || prompt.contains("practice quiz", ignoreCase = true)) {
+            return generateFallbackQuiz(prompt)
+        }
+
         val questionMarker = "Question: "
         val question = if (prompt.contains(questionMarker)) {
             prompt.substringAfter(questionMarker).trim()
@@ -150,6 +154,7 @@ object GeminiClient {
         step3.put("title", "Summary & Takeaway")
         step3.put("body", "Review this step-by-step breakdown and practice similar questions to strengthen your understanding.")
         steps.put(step3)
+
         json.put("steps", steps)
 
         val finalAnswer = when (subject) {
@@ -162,6 +167,177 @@ object GeminiClient {
         json.put("finalAnswer", finalAnswer)
 
         return json.toString()
+    }
+
+    private fun generateFallbackQuiz(prompt: String): String {
+        val lower = prompt.lowercase()
+        val subject = when {
+            lower.contains("math") -> "math"
+            lower.contains("science") -> "science"
+            lower.contains("code") -> "code"
+            lower.contains("history") -> "history"
+            lower.contains("language") -> "language"
+            else -> "math"
+        }
+
+        val root = JSONObject()
+        val items = JSONArray()
+
+        when (subject) {
+            "math" -> {
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "What is the solution to x + 5 = 12?")
+                    put("options", JSONArray().put("x = 5").put("x = 7").put("x = 12").put("x = 17"))
+                    put("correctAnswer", "x = 7")
+                    put("explanation", "Subtract 5 from both sides: 12 - 5 = 7.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "What is 2³?")
+                    put("options", JSONArray().put("6").put("8").put("9").put("12"))
+                    put("correctAnswer", "8")
+                    put("explanation", "2³ = 2 × 2 × 2 = 8.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "short")
+                    put("prompt", "What is the square root of 64?")
+                    put("options", JSONArray())
+                    put("correctAnswer", "8")
+                    put("explanation", "8 × 8 = 64, so √64 = 8.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "blank")
+                    put("prompt", "The area of a rectangle with length 5 and width 4 is ____.")
+                    put("options", JSONArray())
+                    put("correctAnswer", "20")
+                    put("explanation", "Area = length × width = 5 × 4 = 20.")
+                })
+            }
+            "code" -> {
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "Which keyword is used to declare a block-scoped variable that cannot be reassigned in JavaScript?")
+                    put("options", JSONArray().put("var").put("let").put("const").put("static"))
+                    put("correctAnswer", "const")
+                    put("explanation", "'const' declares variables that cannot be reassigned.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "What will `console.log(typeof 42)` output in JavaScript?")
+                    put("options", JSONArray().put("string").put("number").put("boolean").put("object"))
+                    put("correctAnswer", "number")
+                    put("explanation", "42 is a numeric primitive, so typeof returns 'number'.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "short")
+                    put("prompt", "Which method adds one or more elements to the end of an array in JavaScript?")
+                    put("options", JSONArray())
+                    put("correctAnswer", "push")
+                    put("explanation", "Array.prototype.push() appends new elements to the end of an array.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "blank")
+                    put("prompt", "In Python, the function used to print output to the console is ____().")
+                    put("options", JSONArray())
+                    put("correctAnswer", "print")
+                    put("explanation", "print() outputs text to the standard output in Python.")
+                })
+            }
+            "science" -> {
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "Which organelle is known as the powerhouse of the cell?")
+                    put("options", JSONArray().put("Nucleus").put("Mitochondria").put("Ribosome").put("Golgi apparatus"))
+                    put("correctAnswer", "Mitochondria")
+                    put("explanation", "Mitochondria generate most of the cell's ATP supply.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "What is the chemical formula for water?")
+                    put("options", JSONArray().put("CO2").put("H2O").put("NaCl").put("O2"))
+                    put("correctAnswer", "H2O")
+                    put("explanation", "Water consists of 2 hydrogen atoms and 1 oxygen atom.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "short")
+                    put("prompt", "What process do plants use to convert sunlight into energy?")
+                    put("options", JSONArray())
+                    put("correctAnswer", "Photosynthesis")
+                    put("explanation", "Photosynthesis converts light energy into chemical energy.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "blank")
+                    put("prompt", "The gas that humans inhale for respiration is ____.")
+                    put("options", JSONArray())
+                    put("correctAnswer", "Oxygen")
+                    put("explanation", "Oxygen is vital for cellular respiration in aerobic organisms.")
+                })
+            }
+            "history" -> {
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "In which year did World War II end?")
+                    put("options", JSONArray().put("1918").put("1939").put("1945").put("1950"))
+                    put("correctAnswer", "1945")
+                    put("explanation", "World War II concluded in 1945.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "Who was the first President of the United States?")
+                    put("options", JSONArray().put("Abraham Lincoln").put("George Washington").put("Thomas Jefferson").put("John Adams"))
+                    put("correctAnswer", "George Washington")
+                    put("explanation", "George Washington served as the 1st US President from 1789 to 1797.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "short")
+                    put("prompt", "Which ancient civilization built the pyramids of Giza?")
+                    put("options", JSONArray())
+                    put("correctAnswer", "Egyptians")
+                    put("explanation", "Ancient Egyptians constructed the Giza pyramid complex.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "blank")
+                    put("prompt", "The August Revolution in Vietnam took place in the year ____.")
+                    put("options", JSONArray())
+                    put("correctAnswer", "1945")
+                    put("explanation", "The August Revolution occurred in August 1945.")
+                })
+            }
+            else -> {
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "Which of the following is a primary color?")
+                    put("options", JSONArray().put("Green").put("Red").put("Purple").put("Orange"))
+                    put("correctAnswer", "Red")
+                    put("explanation", "Red, Yellow, and Blue are primary colors in subtractive color theory.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "mcq")
+                    put("prompt", "How many continents are there on Earth?")
+                    put("options", JSONArray().put("5").put("6").put("7").put("8"))
+                    put("correctAnswer", "7")
+                    put("explanation", "Earth has 7 continents: Asia, Africa, North America, South America, Antarctica, Europe, Australia.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "short")
+                    put("prompt", "What is the capital city of France?")
+                    put("options", JSONArray())
+                    put("correctAnswer", "Paris")
+                    put("explanation", "Paris is the capital and largest city of France.")
+                })
+                items.put(JSONObject().apply {
+                    put("type", "blank")
+                    put("prompt", "The official language of Japan is ____.")
+                    put("options", JSONArray())
+                    put("correctAnswer", "Japanese")
+                    put("explanation", "Japanese is spoken by over 120 million people in Japan.")
+                })
+            }
+        }
+
+        root.put("items", items)
+        return root.toString()
     }
 
     private fun truncate(s: String?, max: Int): String {
