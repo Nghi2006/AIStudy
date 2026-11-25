@@ -535,13 +535,7 @@ class ProgressFragment : Fragment() {
     }
 
     private fun openPractice(subject: String) {
-        val dao = qaDao
-        if (context == null || dao == null || currentUserId == -1L) {
-            return
-        }
-        val count = dao.countBySubject(currentUserId, subject)
-        if (count < MIN_PRACTICE_QA) {
-            Toast.makeText(requireContext(), R.string.quiz_need_more, Toast.LENGTH_LONG).show()
+        if (context == null || currentUserId == -1L) {
             return
         }
         val intent = Intent(requireContext(), QuizActivity::class.java)
