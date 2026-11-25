@@ -290,14 +290,6 @@ class AskFragment : Fragment() {
             question = getString(R.string.ask_image_default_question)
         }
 
-        if (TextUtils.isEmpty(BuildConfig.GEMINI_API_KEY) ||
-            "YOUR_KEY_HERE" == BuildConfig.GEMINI_API_KEY
-        ) {
-            Log.e(TAG, "submit blocked: api key missing or placeholder")
-            Toast.makeText(requireContext(), R.string.ask_no_api_key, Toast.LENGTH_LONG).show()
-            return
-        }
-
         Log.d(
             TAG, "submit start questionLength=${question.length}" +
                     " hasImage=$hasImage" +

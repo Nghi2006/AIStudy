@@ -140,12 +140,6 @@ class QuizActivity : AppCompatActivity() {
             return
         }
 
-        if (BuildConfig.GEMINI_API_KEY.isEmpty() || BuildConfig.GEMINI_API_KEY == "YOUR_KEY_HERE") {
-            Toast.makeText(this, R.string.quiz_no_api_key, Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
-
         showLoading()
         val prompt = buildQuizPrompt(sources)
         val sourceIds = JSONArray()

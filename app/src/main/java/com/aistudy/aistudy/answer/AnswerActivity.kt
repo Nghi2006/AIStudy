@@ -227,12 +227,6 @@ class AnswerActivity : AppCompatActivity() {
     }
 
     private fun loadExtras(focusKey: String) {
-        if (TextUtils.isEmpty(BuildConfig.GEMINI_API_KEY) ||
-            "YOUR_KEY_HERE" == BuildConfig.GEMINI_API_KEY
-        ) {
-            Toast.makeText(this, R.string.ask_no_api_key, Toast.LENGTH_LONG).show()
-            return
-        }
         val item = qa ?: return
 
         extrasLoading = true
