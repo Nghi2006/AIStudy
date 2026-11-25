@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets
 object GeminiClient {
 
     private const val TAG = "GeminiClient"
-    private const val MODEL = "gemini-1.5-flash"
+    private const val MODEL = "gemini-3.5-flash"
 
     fun ask(apiKey: String, prompt: String): String {
         return ask(apiKey, prompt, null, null)
